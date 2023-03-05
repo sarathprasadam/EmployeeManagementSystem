@@ -24,6 +24,35 @@ namespace EmployeeManagementSystem.Data
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             return builder.Build();
         }
+        public async Task<Login>GetUser(string username)
+        {
+            try
+            {
+                Login user = new();
+                using var ctx = new DataContext();
+                user=ctx.Login.Where(e=>e.username==username).FirstOrDefault();
+                return user;
+
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+        public string AddUser(Login user)
+        {
+            try
+            {
+                using var ctx=new DataContext();
+                ctx.Login.Add(user);
+                ctx.SaveChanges();
+                return "Saved";
+            }
+            catch(Exception ex)
+            {
+                return ex.Message;
+            }
+        }
         public async Task<List<Employees>>GetEmployees()
         {
             List<Employees> employees = new();

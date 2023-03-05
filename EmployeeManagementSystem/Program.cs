@@ -1,3 +1,4 @@
+
 using Blazored.Modal;
 using Blazored.Toast;
 using EmployeeManagementSystem.Data;
@@ -13,6 +14,7 @@ builder.Services.AddSingleton<DataContext>();
 builder.Services.AddSingleton<DataController>();
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
+
 //builder.Services.AddDbContext<DataContext>(options=>options.UseSqlServer(ConfigurationBuilder().Set);
 var app = builder.Build();
 

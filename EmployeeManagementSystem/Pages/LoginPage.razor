@@ -1,0 +1,78 @@
+﻿@page "/login"
+@using EmployeeManagementSystem.Data;
+@inject DataController controller
+@inject IToastService toastService
+<BlazoredToasts 
+                Timeout="5"></BlazoredToasts>
+<div class="loginContainer">
+    <div class="loginBox">
+        <EditForm Model="@loginUser" OnValidSubmit="HandleSubmit">
+             <div>
+                <label class="form-label" for="name">UserName:</label>
+                <InputText id="name" class="form-control" @bind-Value="@loginUser.username"></InputText>
+        
+            </div>
+            <div>
+                <label class="form-label" for="name">Password:</label>
+                <InputText id="name"  type="password" class="form-control" @bind-Value="@loginUser.password"></InputText>
+        
+            </div>
+            @if (isLogin)
+            {
+                <button type="submit" class="btn btn-success">Login</button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-success">Create Account</button>
+            }
+        </EditForm>
+    </div>
+</div>
+@code {
+    public Login loginUser = new();
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    public bool isLogin { get; set;} = false;
+    private  async void HandleSubmit()
+    {
+        if(isLogin)
+        {
+            Login user = new();          
+            user = Task.Run(() => controller.GetUser(loginUser.username)).Result;
+            if(user==null)
+            {
+                toastService.ShowError("Username does not exist");
+                loginUser = new();
+            }
+            else
+            {
+                var encrypted = Encryption.Encrpt(loginUser.password);
+                if(encrypted==user.password)
+                {
+                    toastService.ShowSuccess("Login successful");
+                }
+                else
+                {
+                    toastService.ShowError("Incorrect Password");
+                    loginUser = new();
+                }
+            }
+        }
+        else
+        {
+            var encrypted = Encryption.Encrpt(loginUser.password);
+            loginUser.password = encrypted;
+            string output = controller.AddUser(loginUser);
+            if(output=="Saved")
+            {
+                toastService.ShowSuccess("New User created Successfully");
+                 await Task.Delay(1000);
+                await BlazoredModal.CloseAsync();
+            }
+            else
+            {
+                toastService.ShowError(output);
+            }
+        }
+    }
+
+}

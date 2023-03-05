@@ -1,6 +1,6 @@
 ﻿@page "/employee"
 @using EmployeeManagementSystem.Data
-@using DevExpress.Blazor
+
 @inject IJSRuntime JSRuntime
 @inject DataController controller
 @inject IToastService toastService
@@ -8,7 +8,7 @@
                 Timeout="5"></BlazoredToasts>
 <button class="btn btn-primary" @onclick="@(() => NewClick())">New</button>
 <div class="search">
-   
+   <button class="btn btn-link" @onclick="@(() => FetchAll())">Fetch All</button>
     <input type="text" placeholder="Search" @bind="searchString"/>
     <button class="btn btn-info" @onclick="@(() => SearchClick())">Filter </button>
 </div>
@@ -40,7 +40,7 @@
 
 @code {
     private List<Employees> employeeList;
-    
+
     [CascadingParameter] public IModalService Modal { get; set; }
     ModalParameters parameters;
     string searchString = "";
@@ -113,7 +113,18 @@
         }
         catch(Exception ex)
         {
-             toastService.ShowError(ex.Message);
+            toastService.ShowError(ex.Message);
+        }
+    }
+    public void FetchAll()
+    {
+        try
+        {
+            employeeList = Task.Run(() => controller.GetEmployees()).Result;
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError(ex.Message);
         }
     }
 }

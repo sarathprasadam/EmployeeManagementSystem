@@ -6,11 +6,11 @@ namespace EmployeeManagementSystem.Data
 {
     public class Encryption
     {
-        public static string Encrpt(string raw, string key)
+        public static string Encrpt(string raw)
         {
             using (AesCryptoServiceProvider csp = new AesCryptoServiceProvider())
             {
-                byte[] keyByte = Encoding.UTF8.GetBytes(key);
+                byte[] keyByte = new byte[] { 0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c }; ;
                 byte[] ivByte = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
                 csp.Key = keyByte;
                 csp.IV = ivByte;
@@ -33,7 +33,6 @@ namespace EmployeeManagementSystem.Data
                 return Convert.ToBase64String(encrypted);
             }
         }
-
 
         public static string Decrypt(string raw, string key)
         {

@@ -19,5 +19,6 @@ namespace EmployeeManagementSystem.Data
             return builder.Build();
         }
         public DbSet<Employees> Employees { get; set; }
+        public DbSet<Login> Login { get; set; }
     }
 }
