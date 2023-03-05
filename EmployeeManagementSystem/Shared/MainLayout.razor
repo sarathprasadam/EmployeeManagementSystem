@@ -15,6 +15,10 @@
         <div class="top-row px-4">
            
           <span style="font-weight:bold">@username</span> 
+            @if (success)
+            {
+                <button @onclick="@(()=>logout())" class="btn btn-link">Logout</button>
+            }
           @if(username=="admin")
             {
                 <button  @onclick="@(()=>CreateUser())"  class="btn btn-link">Creat User</button>
@@ -96,5 +100,10 @@
     {
         Modal.Show<LoginPage>();
     }
-   
+    public void logout()
+    {
+        loginUser = new();
+        success = false;
+    }
+
 }
