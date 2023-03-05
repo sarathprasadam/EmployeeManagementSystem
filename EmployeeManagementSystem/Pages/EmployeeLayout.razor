@@ -1,0 +1,119 @@
+﻿@page "/employee"
+@using EmployeeManagementSystem.Data
+@using DevExpress.Blazor
+@inject IJSRuntime JSRuntime
+@inject DataController controller
+@inject IToastService toastService
+<BlazoredToasts 
+                Timeout="5"></BlazoredToasts>
+<button class="btn btn-primary" @onclick="@(() => NewClick())">New</button>
+<div class="search">
+   
+    <input type="text" placeholder="Search" @bind="searchString"/>
+    <button class="btn btn-info" @onclick="@(() => SearchClick())">Filter </button>
+</div>
+
+ <table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Gender</th>     
+      <th>Department</th>
+      <th>Manage Record</th>
+    </tr>
+  </thead>
+  <tbody>
+       @foreach(Employees emp in employeeList)
+        {
+            <tr>
+                <td>@emp.Id</td>
+                <td>@emp.Name</td>
+                <td>@emp.Gender</td>
+                <td>@emp.Department</td>
+                <td><button @onclick="@(()=>EditClick(emp.Id))" class="btn btn-info">Edit</button><button class="btn btn-danger" @onclick="@(()=>DeleteClick(emp.Id))">Delete</button></td>
+            </tr>
+            
+       }
+  </tbody>
+</table>
+
+@code {
+    private List<Employees> employeeList;
+    
+    [CascadingParameter] public IModalService Modal { get; set; }
+    ModalParameters parameters;
+    string searchString = "";
+    protected override async Task OnInitializedAsync()
+    {
+        employeeList = Task.Run(() => controller.GetEmployees()).Result;
+    }
+    public async void EditClick(int empId)
+    {
+        try
+        {
+            parameters = new();
+            parameters.Add(nameof(InsertEmployee.EmployeeList), employeeList);
+            parameters.Add(nameof(InsertEmployee.EmpId), empId);
+            var editModel = Modal.Show<InsertEmployee>("Edit Employee", parameters);
+            var result = await editModel.Result;
+            this.StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+    }
+    public async void DeleteClick(int empId)
+    {
+        try
+        {     
+            parameters = new();
+            parameters.Add(nameof(DeleteEmployee.EmployeeList),employeeList);
+            parameters.Add(nameof(DeleteEmployee.EmpId),empId);
+            var deleteModel = Modal.Show<DeleteEmployee>("Delete Employee", parameters);
+            var result = await deleteModel.Result;
+            this.StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+    }
+    public async void NewClick()
+    {
+        try
+        {
+            parameters = new();
+            parameters.Add(nameof(InsertEmployee.EmployeeList), employeeList);
+            var insertModel = Modal.Show<InsertEmployee>("Add Employee", parameters);
+            var result = await insertModel.Result;
+            var abc = result.Data;
+            this.StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+
+    }
+    public void SearchClick()
+    {
+        try
+        {
+            if(searchString=="")
+            {
+                toastService.ShowWarning("Enter a name to search");
+            }
+            else
+            {
+                employeeList= Task.Run(() => controller.GetEmployeesByName(searchString)).Result;
+                this.StateHasChanged();
+            }
+        }
+        catch(Exception ex)
+        {
+             toastService.ShowError(ex.Message);
+        }
+    }
+}

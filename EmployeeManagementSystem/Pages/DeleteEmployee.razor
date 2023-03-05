@@ -1,0 +1,72 @@
+﻿@using EmployeeManagementSystem.Data;
+@inject DataController controller;
+@inject IToastService toastService
+<BlazoredToasts 
+                Timeout="5"></BlazoredToasts>
+<h3>Do you want to delete This employee?</h3>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name: </td>
+      <td>@employee.Name</td>
+      
+    </tr>
+    <tr>
+      <td>Gender: </td>
+      <td>@employee.Gender</td>
+     
+    </tr>
+    <tr>
+      <td>Department: </td>
+      <td>@employee.Department</td>
+     
+    </tr>
+      <tr>
+      <td>City: </td>
+      <td>@employee.City</td>
+     
+    </tr>
+  </tbody>
+</table>
+<button class="btn btn-danger" @onclick="@(()=>Delete())">Yes</button>
+<button  class="btn btn-warning" @onclick="@(()=>Cancel())">No</button>
+@code {
+    public Employees employee { get; set; } 
+    [Parameter]
+    public List<Employees> EmployeeList{ get; set; }
+    [Parameter]
+    public int EmpId{ get; set; }
+     [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    public async void Delete()
+    {
+        bool success=controller.DeleteEmployee(employee);
+        if(success)
+        {
+
+            toastService.ShowSuccess("Deletion Successfully");
+            EmployeeList.Remove(employee);
+
+        }
+        else
+        {
+            toastService.ShowError("Deletion Failed");
+        }
+        await Task.Delay(1000);
+         await BlazoredModal.CloseAsync();
+    }
+    public async void Cancel()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        employee = EmployeeList.First(e => e.Id == EmpId);
+    }
+}

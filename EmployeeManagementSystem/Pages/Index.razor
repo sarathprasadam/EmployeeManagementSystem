@@ -1,0 +1,35 @@
+﻿@page "/"
+@using EmployeeManagementSystem.Data
+@using DevExpress.Blazor
+@inject IJSRuntime JSRuntime
+@inject DataController controller
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Gender</th>     
+      <th>Department</th>
+     </tr>
+  </thead>
+  <tbody>
+       @foreach(Employees emp in employeeList)
+        {
+            <tr>
+                <td>@emp.Id</td>
+                <td>@emp.Name</td>
+                <td>@emp.Gender</td>
+                <td>@emp.Department</td>
+               
+            </tr>
+            
+       }
+  </tbody>
+</table>
+@code{
+     private List<Employees> employeeList;
+      protected override async Task OnInitializedAsync()
+    {
+        employeeList = Task.Run(() => controller.GetEmployees()).Result;
+    }
+}

@@ -1,0 +1,119 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using EmployeeManagementSystem.Data;
+@inject DataController controller;
+@inject IToastService toastService
+<BlazoredToasts 
+                Timeout="5"></BlazoredToasts>
+<EditForm  Model="employee" OnValidSubmit="HandleSubmit">
+     <DataAnnotationsValidator></DataAnnotationsValidator>
+    <div>
+        <label class="form-label" for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@employee.Name"></InputText>
+         <ValidationMessage For="@(() => employee.Name)" />
+    </div>
+    
+       <div class="form-group">
+        <label for="department">Gender:</label>
+        <InputSelect id="department" class="form-control" @bind-Value="@employee.Gender" >
+            @foreach (var gender in Gender)
+            {
+                <option value="@gender">@gender</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => employee.Gender)" />
+    </div>
+     <div class="form-group">
+        <label for="dob">Date of Birth:</label>
+        <InputDate id="dob" class="form-control" @bind-Value="@employee.DOB" />
+        <ValidationMessage For="@(() => employee.DOB)" />
+    </div>
+       <div class="form-group">
+        <label for="department">Department:</label>
+        <InputSelect id="department" class="form-control" @bind-Value="@employee.Department" >
+            @foreach (var department in departments)
+            {
+                <option value="@department">@department</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => employee.Department)" />
+    </div>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <InputSelect id="city" class="form-control" @bind-Value="@employee.City" >
+            @foreach (var city in cities)
+            {
+                <option value="@city">@city</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => employee.City)" />
+    </div>
+    <div>
+        <label class="form-label" for="name">Qualifications:</label>
+        <InputText id="name" class="form-control" @bind-Value="@employee.Qualifications"></InputText>
+         <ValidationMessage For="@(() => employee.Qualifications)" />
+    </div>
+    <div class="form-group">
+        <label for="experienceDetails">Experience Details:</label>
+        <InputTextArea id="experienceDetails" class="form-control" @bind-Value="@employee.ExperienceDetails" />
+        <ValidationMessage For="@(() => employee.ExperienceDetails)" />
+    </div>
+    <button type="submit" class="btn btn-success">Submit</button>
+    </EditForm>
+@code {
+
+    public Employees employee { get; set; } 
+    [Parameter]
+    public List<Employees> EmployeeList{ get; set; }
+    [Parameter]
+    public int EmpId{ get; set; }
+    public bool insert=false;
+    List<string> departments = new() { "Computer Science", "Electronics and Communication", "Electrical ", "Mechanical", "Civil" };
+    List<string> cities = new() { "Ernakulam","Kollam","Palakkad","Wayanad","Idukki","Kottayam","Pathanamthitta","Kannur","Kozhikode","Thiruvananthapuram","Alappuzha","Kasaragod","Malappuram","Thrissur"};
+    List<string> Gender = new() { "Male", "Female" };
+
+    private void HandleSubmit()
+    {
+        if (insert)
+        {
+            bool success=controller.AddEmployee(employee);
+            if(success)
+            {
+                insert = false;
+                EmployeeList.Add(employee);
+                toastService.ShowSuccess("Inserted Successfully");
+
+            }
+            else
+            {
+                toastService.ShowError("Insertion Failed");
+            }
+        }
+        else
+        {
+            bool success= controller.UpdateEmployee(employee);
+            if(success)
+            {
+                toastService.ShowSuccess("Updated Successfully");
+            }
+            else
+            {
+                toastService.ShowError("Updation Failed");
+            }
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        if(EmpId==0)
+        {
+            employee=new();
+            insert = true;
+            employee.DOB = DateTime.Today;
+            employee.City = cities[0];
+            employee.Department = departments[0];
+        }
+        else
+        {
+            employee = EmployeeList.First(e => e.Id == EmpId);
+        }
+    }
+}
